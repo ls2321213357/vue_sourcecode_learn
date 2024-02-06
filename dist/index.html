@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">
+      <div>{{name}}</div>
+      <span>{{age}}</span>
+    </div>
+    <script src="./vue.js"></script>
+    <script>
+      /* 
+        1、响应式的数据变化 数据变化了我可以监控到数据的变化
+        2、使用虚拟dom来控制视图的变化 数据更新时 通过对比虚拟dom的差异 来选择性的更新
+        3、核心就是需要我们把模板变化成 js 语法 通过js生成虚拟dom
+        4、我们需要先变成语法树在重新组装代码变成新的语法
+        */
+      const vm = new Vue({
+        el: "#app",
+        data() {
+          return {
+            name: "ls",
+            age: 23,
+            address: {
+              count: 12,
+            },
+            hobby: ["eat", "play", { food: "milk" }],
+          };
+        },
+      });
+      //修改数组  很少用索引去操作数据 但是内部劫持会浪费性能 修改数据基本都是通过数组方法去修改
+      // vm.hobby[2] = { food: "meet" };
+      // vm.hobby.push("123");
+      console.log(vm.hobby);
+      // console.log(vm.hobby[2]);
+    </script>
+  </body>
+</html>

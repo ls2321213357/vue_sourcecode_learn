@@ -1,5 +1,6 @@
 import { compileToFunction } from "./compiler";
 import { initState } from "./initState";
+import { mountedComponent } from "./liftCycle";
 
 //用于在vue的原型对象上挂在init方法
 export function initMixinVue(Vue) {
@@ -19,24 +20,27 @@ export function initMixinVue(Vue) {
     const { $options } = this;
     if (!$options.render) {
       //如果模板中没写render
-      let template = "";
-      if (!$options.template) {
-        //如果模板中没写template
-        if (el) {
-          //如果获取到了el 这个dom元素
+      let template;
+      if (el) {
+        //如果获取到了el 这个dom元素
+        if (!$options.template) {
+          //如果模板中没写template
           template = el.outerHTML; //得到的是html字符串,当前节点包括其子节点
+        } else {
+          //模板中写了template
+          template = $options.template;
         }
-      } else {
-        //模板中写了template
-        template = $options.template;
+        if (template) {
+          //在这里需要进行编译
+          const render = compileToFunction(template);
+          $options.render = render;
+        }
       }
-      if (template) {
-        //在这里需要进行编译
-        const render = compileToFunction(template);
-        $options.render = render;
-      }
+    } else {
+      //如果写了render
     }
-    $options.render; //最终就统一成render方法
+    //挂载到组件实例上
+    mountedComponent(this, el);
   }
   Vue.prototype.$mount = mount;
   Vue.prototype._init = init; //挂载init方法

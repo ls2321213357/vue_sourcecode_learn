@@ -25,20 +25,28 @@ function gen(childNode) {
     return codeGen(childNode);
   } else {
     //是文本内容  如果匹配成功  是包括{{}} 的
-    // defaultTagRE.lastIndex = 0;
-    if (defaultTagRE.test(childNode.text)) {
-      console.log(childNode.text);
-      let resultStr;
-      console.log(defaultTagRE.exec(childNode.text));
-      // while (defaultTagRE.exec(childNode.text)) {
-      //   console.log(12);
-      //   console.log(resultStr);
-      // }
-
-      // let resText = childNode.text[0].replace("{{", "_s(").replace("}}", ")");
-      // return `_v(${resText})`;
+    let textSelf = childNode.text;
+    if (defaultTagRE.test(textSelf)) {
+      //包括{{}}
+      let lastIndex = 0; //文本的最后一个下标
+      let matchStr;
+      let tokens = [];
+      defaultTagRE.lastIndex = 0; //正则表达式的检测下标
+      while ((matchStr = defaultTagRE.exec(textSelf))) {
+        let currentIndex = matchStr.index; //记录当前匹配元素的index
+        //如果 当前的索引大于上一次记录的索引 说明中间有非{{}}的文本
+        if (currentIndex > lastIndex)
+          tokens.push(JSON.stringify(textSelf.slice(lastIndex, currentIndex)));
+        tokens.push(`_s(${matchStr[1].trim()})`); //是花括号的内容就进行_s包装下
+        lastIndex = currentIndex + matchStr[0].length;
+      }
+      //这部分是匹配花括号之后部分的普通文本
+      if (lastIndex < textSelf.length)
+        tokens.push(JSON.stringify(textSelf.slice(lastIndex)));
+      return `_v(${tokens.join("+")})`;
     } else {
-      return `_v(${JSON.stringify(childNode.text)})`;
+      //单纯的文本 没有{{}}
+      return `_v(${JSON.stringify(textSelf)})`;
     }
   }
 }
@@ -57,7 +65,8 @@ export function compileToFunction(template) {
     2.生成render方法 (render方法返回的结果是 虚拟DOM)
     */
   let ast = parseHtml(template);
-  console.log(ast, "ast");
   let codeResult = codeGen(ast);
-  console.log(codeResult);
+  codeResult = `with(this){return ${codeResult}}`;
+  const render = new Function(codeResult);
+  return render;
 }

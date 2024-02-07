@@ -303,19 +303,26 @@
       return codeGen(childNode);
     } else {
       //是文本内容  如果匹配成功  是包括{{}} 的
-      // defaultTagRE.lastIndex = 0;
-      if (defaultTagRE.test(childNode.text)) {
-        console.log(childNode.text);
-        console.log(defaultTagRE.exec(childNode.text));
-        // while (defaultTagRE.exec(childNode.text)) {
-        //   console.log(12);
-        //   console.log(resultStr);
-        // }
-
-        // let resText = childNode.text[0].replace("{{", "_s(").replace("}}", ")");
-        // return `_v(${resText})`;
+      var textSelf = childNode.text;
+      if (defaultTagRE.test(textSelf)) {
+        //包括{{}}
+        var lastIndex = 0; //文本的最后一个下标
+        var matchStr;
+        var tokens = [];
+        defaultTagRE.lastIndex = 0; //正则表达式的检测下标
+        while (matchStr = defaultTagRE.exec(textSelf)) {
+          var currentIndex = matchStr.index; //记录当前匹配元素的index
+          //如果 当前的索引大于上一次记录的索引 说明中间有非{{}}的文本
+          if (currentIndex > lastIndex) tokens.push(JSON.stringify(textSelf.slice(lastIndex, currentIndex)));
+          tokens.push("_s(".concat(matchStr[1].trim(), ")")); //是花括号的内容就进行_s包装下
+          lastIndex = currentIndex + matchStr[0].length;
+        }
+        //这部分是匹配花括号之后部分的普通文本
+        if (lastIndex < textSelf.length) tokens.push(JSON.stringify(textSelf.slice(lastIndex)));
+        return "_v(".concat(tokens.join("+"), ")");
       } else {
-        return "_v(".concat(JSON.stringify(childNode.text), ")");
+        //单纯的文本 没有{{}}
+        return "_v(".concat(JSON.stringify(textSelf), ")");
       }
     }
   }
@@ -332,9 +339,10 @@
       2.生成render方法 (render方法返回的结果是 虚拟DOM)
       */
     var ast = parseHtml(template);
-    console.log(ast, "ast");
     var codeResult = codeGen(ast);
-    console.log(codeResult);
+    codeResult = "with(this){return ".concat(codeResult, "}");
+    var render = new Function(codeResult);
+    return render;
   }
 
   //     多数组方法进行重写
@@ -509,24 +517,23 @@
       var $options = this.$options;
       if (!$options.render) {
         //如果模板中没写render
-        var template = "";
-        if (!$options.template) {
-          //如果模板中没写template
-          if (el) {
-            //如果获取到了el 这个dom元素
+        var template;
+        if (el) {
+          //如果获取到了el 这个dom元素
+          if (!$options.template) {
+            //如果模板中没写template
             template = el.outerHTML; //得到的是html字符串,当前节点包括其子节点
+          } else {
+            //模板中写了template
+            template = $options.template;
           }
-        } else {
-          //模板中写了template
-          template = $options.template;
-        }
-        if (template) {
-          //在这里需要进行编译
-          var render = compileToFunction(template);
-          $options.render = render;
+          if (template) {
+            //在这里需要进行编译
+            var render = compileToFunction(template);
+            $options.render = render;
+          }
         }
       }
-      $options.render; //最终就统一成render方法
     }
     Vue.prototype.$mount = mount;
     Vue.prototype._init = init; //挂载init方法

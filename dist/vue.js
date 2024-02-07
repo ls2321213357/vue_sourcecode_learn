@@ -4,12 +4,159 @@
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Vue = factory());
 })(this, (function () { 'use strict';
 
+  function _iterableToArrayLimit(r, l) {
+    var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
+    if (null != t) {
+      var e,
+        n,
+        i,
+        u,
+        a = [],
+        f = !0,
+        o = !1;
+      try {
+        if (i = (t = t.call(r)).next, 0 === l) {
+          if (Object(t) !== t) return;
+          f = !1;
+        } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0);
+      } catch (r) {
+        o = !0, n = r;
+      } finally {
+        try {
+          if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return;
+        } finally {
+          if (o) throw n;
+        }
+      }
+      return a;
+    }
+  }
+  function _toPrimitive(t, r) {
+    if ("object" != typeof t || !t) return t;
+    var e = t[Symbol.toPrimitive];
+    if (void 0 !== e) {
+      var i = e.call(t, r || "default");
+      if ("object" != typeof i) return i;
+      throw new TypeError("@@toPrimitive must return a primitive value.");
+    }
+    return ("string" === r ? String : Number)(t);
+  }
+  function _toPropertyKey(t) {
+    var i = _toPrimitive(t, "string");
+    return "symbol" == typeof i ? i : String(i);
+  }
+  function _typeof(o) {
+    "@babel/helpers - typeof";
+
+    return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) {
+      return typeof o;
+    } : function (o) {
+      return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
+    }, _typeof(o);
+  }
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+  function _defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor);
+    }
+  }
+  function _createClass(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties(Constructor, staticProps);
+    Object.defineProperty(Constructor, "prototype", {
+      writable: false
+    });
+    return Constructor;
+  }
+  function _slicedToArray(arr, i) {
+    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
+  }
+  function _arrayWithHoles(arr) {
+    if (Array.isArray(arr)) return arr;
+  }
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(o);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+  }
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+    return arr2;
+  }
+  function _nonIterableRest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+  function _createForOfIteratorHelper(o, allowArrayLike) {
+    var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
+    if (!it) {
+      if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
+        if (it) o = it;
+        var i = 0;
+        var F = function () {};
+        return {
+          s: F,
+          n: function () {
+            if (i >= o.length) return {
+              done: true
+            };
+            return {
+              done: false,
+              value: o[i++]
+            };
+          },
+          e: function (e) {
+            throw e;
+          },
+          f: F
+        };
+      }
+      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    }
+    var normalCompletion = true,
+      didErr = false,
+      err;
+    return {
+      s: function () {
+        it = it.call(o);
+      },
+      n: function () {
+        var step = it.next();
+        normalCompletion = step.done;
+        return step;
+      },
+      e: function (e) {
+        didErr = true;
+        err = e;
+      },
+      f: function () {
+        try {
+          if (!normalCompletion && it.return != null) it.return();
+        } finally {
+          if (didErr) throw err;
+        }
+      }
+    };
+  }
+
   var ncname = "[a-zA-Z_][\\-\\.0-9_a-zA-Z]*";
   var qnameCapture = "((?:".concat(ncname, "\\:)?").concat(ncname, ")");
   var startTagOpen = new RegExp("^<".concat(qnameCapture)); //他匹配的分组是一个开始标签的名字
   var endTag = new RegExp("^<\\/".concat(qnameCapture, "[^>]*>")); //他匹配的分组是结束标签的名字
   var attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/; //匹配属性
   var startTagClose = /^\s*(\/?)>/;
+
   /**
    *
    * @param {string} html
@@ -22,6 +169,7 @@
     /////在这里需要把返回的标签整理成一个树形结构  可以利用栈的结构来实现
     var START_TYPE = 1; //开始标签类型
     var TEXT_TYPE = 3; //文本类型
+    var root = null; //根节点
     var stack = []; //栈
     var startStack; //永远指向栈中的最后一个元素
     //生成树形结构
@@ -37,6 +185,7 @@
     //开始标签处理函数
     function startHandler(tag, attrs) {
       var node = createASTElement(tag, attrs); //创造一个AST节点
+      if (!root) root = node;
       stack.push(node); //把节点推到栈里
       //如果存在了元素  就让当前的元素父节点指向栈顶元素 并把当前元素加入到栈顶元素的子节点集合中
       if (startStack) {
@@ -110,8 +259,72 @@
         }
       }
     }
-    console.log(startStack);
-    // return startStack;
+    return root;
+  }
+
+  //解析标签上的属性
+  function genProps(attrs) {
+    var str = "";
+    var _iterator = _createForOfIteratorHelper(attrs),
+      _step;
+    try {
+      var _loop = function _loop() {
+        var attr = _step.value;
+        if (attr.name === "style") {
+          var attrObj = {};
+          //当为style属性的时候 需要进行分别包装
+          attr.value.split(";").forEach(function (item) {
+            var _item$split = item.split(":"),
+              _item$split2 = _slicedToArray(_item$split, 2),
+              key = _item$split2[0],
+              value = _item$split2[1];
+            attrObj[key] = value;
+          });
+          attr.value = attrObj;
+        }
+        str += "".concat(attr.name, ":").concat(JSON.stringify(attr.value), ",");
+      };
+      for (_iterator.s(); !(_step = _iterator.n()).done;) {
+        _loop();
+      }
+    } catch (err) {
+      _iterator.e(err);
+    } finally {
+      _iterator.f();
+    }
+    return "{".concat(str.slice(0, -1), "}");
+  }
+  //匹配文本{{}} 因为有g 所以需要将lastIndex = 0 回到原位一下
+  var defaultTagRE = /\{\{((?:.|\r?\n)+?)\}\}/g;
+  //解析子节点
+  function gen(childNode) {
+    if (childNode.type === 1) {
+      //如果是html标签 就递归执行codeGen
+      return codeGen(childNode);
+    } else {
+      //是文本内容  如果匹配成功  是包括{{}} 的
+      // defaultTagRE.lastIndex = 0;
+      if (defaultTagRE.test(childNode.text)) {
+        console.log(childNode.text);
+        console.log(defaultTagRE.exec(childNode.text));
+        // while (defaultTagRE.exec(childNode.text)) {
+        //   console.log(12);
+        //   console.log(resultStr);
+        // }
+
+        // let resText = childNode.text[0].replace("{{", "_s(").replace("}}", ")");
+        // return `_v(${resText})`;
+      } else {
+        return "_v(".concat(JSON.stringify(childNode.text), ")");
+      }
+    }
+  }
+  //将ast拼接成一个字符串
+  function codeGen(ast) {
+    var children = ast.children.map(function (child) {
+      return gen(child);
+    }).join(",");
+    return "_c('".concat(ast.tag, "',\n  ").concat(ast.attrs.length ? genProps(ast.attrs) : "null", "\n  ").concat(ast.children.length ? ",".concat(children) : "", "\n  )");
   }
   function compileToFunction(template) {
     /* 
@@ -119,54 +332,9 @@
       2.生成render方法 (render方法返回的结果是 虚拟DOM)
       */
     var ast = parseHtml(template);
-    console.log(ast);
-    //   return template;
-  }
-
-  function _toPrimitive(t, r) {
-    if ("object" != typeof t || !t) return t;
-    var e = t[Symbol.toPrimitive];
-    if (void 0 !== e) {
-      var i = e.call(t, r || "default");
-      if ("object" != typeof i) return i;
-      throw new TypeError("@@toPrimitive must return a primitive value.");
-    }
-    return ("string" === r ? String : Number)(t);
-  }
-  function _toPropertyKey(t) {
-    var i = _toPrimitive(t, "string");
-    return "symbol" == typeof i ? i : String(i);
-  }
-  function _typeof(o) {
-    "@babel/helpers - typeof";
-
-    return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) {
-      return typeof o;
-    } : function (o) {
-      return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
-    }, _typeof(o);
-  }
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-  function _defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
-      descriptor.enumerable = descriptor.enumerable || false;
-      descriptor.configurable = true;
-      if ("value" in descriptor) descriptor.writable = true;
-      Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor);
-    }
-  }
-  function _createClass(Constructor, protoProps, staticProps) {
-    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) _defineProperties(Constructor, staticProps);
-    Object.defineProperty(Constructor, "prototype", {
-      writable: false
-    });
-    return Constructor;
+    console.log(ast, "ast");
+    var codeResult = codeGen(ast);
+    console.log(codeResult);
   }
 
   //     多数组方法进行重写

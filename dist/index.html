@@ -6,8 +6,8 @@
     <title>Document</title>
   </head>
   <body>
-    <div id="app">
-      <div>{{name}}</div>
+    <div id="app" style="color: red">
+      <div>123{{name}}</div>
       <span>{{age}}</span>
     </div>
     <script src="./vue.js"></script>
@@ -34,7 +34,7 @@
       //修改数组  很少用索引去操作数据 但是内部劫持会浪费性能 修改数据基本都是通过数组方法去修改
       // vm.hobby[2] = { food: "meet" };
       // vm.hobby.push("123");
-      console.log(vm.hobby);
+      // console.log(vm.hobby);
       // console.log(vm.hobby[2]);
     </script>
   </body>

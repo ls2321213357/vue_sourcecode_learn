@@ -17,7 +17,7 @@ export function initMixinVue(Vue) {
   }
   function mount(dom) {
     let el = document.querySelector(dom); //拿到模板节点
-    const { $options } = this;
+    const { $options, _render } = this;
     if (!$options.render) {
       //如果模板中没写render
       let template;
@@ -38,6 +38,7 @@ export function initMixinVue(Vue) {
       }
     } else {
       //如果写了render
+      _render();
     }
     //挂载到组件实例上
     mountedComponent(this, el);

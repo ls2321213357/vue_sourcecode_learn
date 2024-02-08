@@ -499,6 +499,55 @@
     });
   }
 
+  //用来处理和创建虚拟dom
+
+  //创建标签虚拟节点
+  function createElementVNode(vm) {}
+
+  function initLifeCycle(Vue) {
+    //处理标签中的节点
+    function _c() {
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+      createElementVNode.apply(void 0, [this].concat(args));
+    }
+    //处理render中的文本节点
+    function _v(text) {
+    }
+    //解析{{}}中的变量
+    function _s(value) {
+      return JSON.stringify(value);
+    }
+    //生成虚拟dom
+    function _render() {
+      var render = this.$options.render;
+      console.log(render);
+      return render.call(this);
+    }
+    //将虚拟dom转换成真实dom
+    function _update() {}
+    Vue.prototype._c = _c;
+    Vue.prototype._s = _s;
+    Vue.prototype._v = _v;
+    Vue.prototype._render = _render;
+    Vue.prototype._update = _update;
+  }
+  function mountedComponent(vm, dom) {
+    /* 
+      1、执行render方法 生成虚拟节点 虚拟dom
+      2、根据虚拟dom生成真实dom
+      3、插入到el元素中
+      */
+    vm._update(vm._render());
+  }
+  /* 
+  Vue执行流程:
+      1.构建响应式数据  2.进行模板解析转换成ast语法树 3.将ast语法树转换成render函数 
+      4.后续每次更新只需要执行render函数即可 5.render函数会生成虚拟dom 6.根据虚拟dom生成真实dom
+
+  */
+
   //用于在vue的原型对象上挂在init方法
   function initMixinVue(Vue) {
     //进行初始化操作
@@ -514,7 +563,8 @@
     }
     function mount(dom) {
       var el = document.querySelector(dom); //拿到模板节点
-      var $options = this.$options;
+      var $options = this.$options,
+        _render = this._render;
       if (!$options.render) {
         //如果模板中没写render
         var template;
@@ -533,7 +583,12 @@
             $options.render = render;
           }
         }
+      } else {
+        //如果写了render
+        _render();
       }
+      //挂载到组件实例上
+      mountedComponent(this);
     }
     Vue.prototype.$mount = mount;
     Vue.prototype._init = init; //挂载init方法
@@ -545,6 +600,7 @@
     this._init(options);
   }
   initMixinVue(Vue); //挂载了init
+  initLifeCycle(Vue); //挂载生命周期部分
 
   return Vue;
 
